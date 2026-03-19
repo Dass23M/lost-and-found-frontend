@@ -112,13 +112,14 @@ export default function HomePage() {
   });
 
   return (
-    <div style={{ overflowX: "hidden" }}>
+    <div>
 
       {/* ── HERO ── */}
-      <section className="relative overflow-hidden"
+      <section
+        className="relative overflow-hidden"
         style={{
           background: "linear-gradient(150deg, #081e1b 0%, #0b3d34 40%, #0d6b5e 75%, #0f766e 100%)",
-          minHeight: "100svh",
+          minHeight: "100vh",
           display: "flex",
           flexDirection: "column",
           justifyContent: "center",
@@ -307,13 +308,6 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Scroll indicator */}
-        <div className="absolute bottom-5 left-1/2 -translate-x-1/2 opacity-30"
-          style={{ animation: "scrollBounce 2.2s ease-in-out infinite" }}>
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-            <path d="m6 9 6 6 6-6"/>
-          </svg>
-        </div>
       </section>
 
       {/* ── HOW IT WORKS ── */}
@@ -357,7 +351,6 @@ export default function HomePage() {
                 className="relative p-6 sm:p-7 rounded-2xl group transition-all duration-400 hover:-translate-y-2 hover:shadow-xl cursor-default"
                 style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
 
-                {/* Step number watermark */}
                 <div className="absolute top-4 right-5 font-display font-bold select-none pointer-events-none"
                   style={{ fontSize: "3.5rem", color: "var(--border)", lineHeight: 1, letterSpacing: "-0.03em" }}>
                   {s.step}
@@ -375,7 +368,6 @@ export default function HomePage() {
                   {s.desc}
                 </p>
 
-                {/* Animated underline */}
                 <div className="mt-5 h-px rounded-full transition-all duration-500 group-hover:w-full"
                   style={{ background: `linear-gradient(90deg, ${s.color}, transparent)`, width: "36px" }}/>
               </FadeUp>
@@ -502,11 +494,9 @@ export default function HomePage() {
             <div className="rounded-3xl overflow-hidden relative"
               style={{ background: "linear-gradient(135deg, #081e1b 0%, #0b3d34 45%, #0d6b5e 80%, #0f766e 100%)" }}>
 
-              {/* Grid */}
               <div className="absolute inset-0 pointer-events-none"
                 style={{ backgroundImage: "linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px)", backgroundSize: "40px 40px" }}/>
 
-              {/* Glow */}
               <div className="absolute top-0 right-0 w-72 h-72 pointer-events-none"
                 style={{ background: "radial-gradient(circle, rgba(245,158,11,0.1) 0%, transparent 65%)" }}/>
 
@@ -556,10 +546,6 @@ export default function HomePage() {
         @keyframes floatBadge {
           0%, 100% { transform: translateY(0px) rotate(-1.5deg); }
           50% { transform: translateY(-10px) rotate(-1.5deg); }
-        }
-        @keyframes scrollBounce {
-          0%, 100% { transform: translateX(-50%) translateY(0); }
-          50% { transform: translateX(-50%) translateY(8px); }
         }
       `}</style>
     </div>
