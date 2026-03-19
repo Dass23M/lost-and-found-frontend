@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
-import { setToken, removeToken } from "@/lib/auth";
+import { setToken, removeToken, getToken } from "@/lib/auth";
 import api from "@/lib/api";
 
 const AuthContext = createContext(null);
@@ -11,7 +11,12 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchUser();
+    const token = getToken();
+    if (token) {
+      fetchUser();
+    } else {
+      setLoading(false);
+    }
   }, []);
 
   const fetchUser = async () => {
@@ -19,6 +24,7 @@ export function AuthProvider({ children }) {
       const res = await api.get("/auth/me");
       setUser(res.data.data);
     } catch {
+      removeToken();
       setUser(null);
     } finally {
       setLoading(false);
@@ -27,15 +33,14 @@ export function AuthProvider({ children }) {
 
   const login = async (email, password) => {
     const res = await api.post("/auth/login", { email, password });
-    setToken(res.data.data.token);
-    setUser(res.data.data);
+    const { token, ...userData } = res.data.data;
+    setToken(token);
+    setUser(userData);
     return res.data;
   };
 
   const register = async (name, email, password) => {
     const res = await api.post("/auth/register", { name, email, password });
-    setToken(res.data.data.token);
-    setUser(res.data.data);
     return res.data;
   };
 
