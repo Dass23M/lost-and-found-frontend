@@ -7,11 +7,13 @@ export function middleware(request) {
   const protectedRoutes = ["/post", "/my-account"];
   const authRoutes = ["/auth/login", "/auth/register"];
 
-  if (protectedRoutes.includes(pathname) && !token) {
-    return NextResponse.redirect(new URL("/auth/login", request.url));
+  if (protectedRoutes.some((route) => pathname.startsWith(route)) && !token) {
+    const loginUrl = new URL("/auth/login", request.url);
+    loginUrl.searchParams.set("redirect", pathname);
+    return NextResponse.redirect(loginUrl);
   }
 
-  if (authRoutes.includes(pathname) && token) {
+  if (authRoutes.some((route) => pathname.startsWith(route)) && token) {
     return NextResponse.redirect(new URL("/", request.url));
   }
 
@@ -19,5 +21,5 @@ export function middleware(request) {
 }
 
 export const config = {
-  matcher: ["/post", "/my-account", "/auth/login", "/auth/register"],
+  matcher: ["/post", "/post/:path*", "/my-account", "/my-account/:path*", "/auth/login", "/auth/register"],
 };
