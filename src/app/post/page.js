@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import api from "@/lib/api";
+import { useAuth } from "@/context/AuthContext";
 
 const CATEGORIES = [
   { value: "electronics", label: "Electronics", icon: "💻" },
@@ -20,14 +21,22 @@ const STEPS = ["Type", "Details", "Location & Photos"];
 
 export default function PostItemPage() {
   const router = useRouter();
+  const { user, loading } = useAuth();
   const [step, setStep] = useState(0);
   const [form, setForm] = useState({
     title: "", description: "", category: "", type: "", location: "",
   });
   const [images, setImages] = useState([]);
   const [previews, setPreviews] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+
+  // Client-side auth guard
+  useEffect(() => {
+    if (!loading && !user) {
+      router.replace("/auth/login");
+    }
+  }, [user, loading]);
 
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -52,12 +61,9 @@ export default function PostItemPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.location) {
-      setError("Please enter a location");
-      return;
-    }
+    if (!form.location) { setError("Please enter a location"); return; }
     setError("");
-    setLoading(true);
+    setSubmitting(true);
     try {
       const formData = new FormData();
       Object.entries(form).forEach(([k, v]) => formData.append(k, v));
@@ -68,9 +74,23 @@ export default function PostItemPage() {
       router.push("/my-account");
     } catch (err) {
       setError(err.response?.data?.message || "Failed to post item");
-      setLoading(false);
+      setSubmitting(false);
     }
   };
+
+  // Show loading while auth resolves
+  if (loading || !user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <svg className="animate-spin" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--teal-600)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+          </svg>
+          <p className="text-sm" style={{ color: "var(--text-muted)" }}>Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={{ background: "var(--surface)", minHeight: "100vh" }}>
@@ -104,7 +124,7 @@ export default function PostItemPage() {
                 <div className="flex items-center gap-2">
                   <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 transition-all"
                     style={{
-                      background: i < step ? "var(--teal-600)" : i === step ? "var(--teal-600)" : "var(--border)",
+                      background: i <= step ? "var(--teal-600)" : "var(--border)",
                       color: i <= step ? "white" : "var(--text-muted)",
                     }}>
                     {i < step ? (
@@ -130,7 +150,6 @@ export default function PostItemPage() {
 
       {/* Form */}
       <div className="max-w-2xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
-
         {error && (
           <div className="flex items-center gap-2 px-4 py-3 rounded-xl text-sm mb-5"
             style={{ background: "#fef2f2", color: "#dc2626", border: "1px solid #fecaca" }}>
@@ -145,38 +164,20 @@ export default function PostItemPage() {
 
         <form onSubmit={handleSubmit}>
 
-          {/* Step 0 — Type & Category */}
+          {/* Step 0 */}
           {step === 0 && (
             <div className="space-y-6">
               <div className="card p-5 sm:p-6">
-                <h2 className="font-display font-bold text-base mb-1"
-                  style={{ color: "var(--text-primary)" }}>
+                <h2 className="font-display font-bold text-base mb-1" style={{ color: "var(--text-primary)" }}>
                   What happened?
                 </h2>
                 <p className="text-xs mb-5" style={{ color: "var(--text-muted)" }}>
                   Tell us whether you lost or found an item
                 </p>
-
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
                   {[
-                    {
-                      value: "lost",
-                      title: "I Lost Something",
-                      desc: "Help others return it to you",
-                      icon: "🔍",
-                      color: "#dc2626",
-                      bg: "#fef2f2",
-                      border: "#fecaca",
-                    },
-                    {
-                      value: "found",
-                      title: "I Found Something",
-                      desc: "Help return it to the owner",
-                      icon: "✅",
-                      color: "#2563eb",
-                      bg: "#eff6ff",
-                      border: "#bfdbfe",
-                    },
+                    { value: "lost", title: "I Lost Something", desc: "Help others return it to you", icon: "🔍", color: "#dc2626", bg: "#fef2f2", border: "#fecaca" },
+                    { value: "found", title: "I Found Something", desc: "Help return it to the owner", icon: "✅", color: "#2563eb", bg: "#eff6ff", border: "#bfdbfe" },
                   ].map((t) => (
                     <button type="button" key={t.value}
                       onClick={() => setForm({ ...form, type: t.value })}
@@ -190,9 +191,7 @@ export default function PostItemPage() {
                         style={{ color: form.type === t.value ? t.color : "var(--text-primary)" }}>
                         {t.title}
                       </span>
-                      <span className="text-xs" style={{ color: "var(--text-muted)" }}>
-                        {t.desc}
-                      </span>
+                      <span className="text-xs" style={{ color: "var(--text-muted)" }}>{t.desc}</span>
                       {form.type === t.value && (
                         <div className="mt-3 w-5 h-5 rounded-full flex items-center justify-center self-end"
                           style={{ background: t.color }}>
@@ -204,7 +203,6 @@ export default function PostItemPage() {
                     </button>
                   ))}
                 </div>
-
                 <div>
                   <label className="label">Category</label>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -227,73 +225,61 @@ export default function PostItemPage() {
             </div>
           )}
 
-          {/* Step 1 — Title & Description */}
+          {/* Step 1 */}
           {step === 1 && (
             <div className="card p-5 sm:p-6 space-y-5">
               <div>
-                <h2 className="font-display font-bold text-base mb-1"
-                  style={{ color: "var(--text-primary)" }}>
+                <h2 className="font-display font-bold text-base mb-1" style={{ color: "var(--text-primary)" }}>
                   Describe the item
                 </h2>
                 <p className="text-xs" style={{ color: "var(--text-muted)" }}>
                   The more detail you provide, the easier it is to identify
                 </p>
               </div>
-
-              {/* Selected type + category summary */}
               <div className="flex items-center gap-2 p-3 rounded-xl"
                 style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
-                <span className="text-base">
-                  {CATEGORIES.find((c) => c.value === form.category)?.icon}
-                </span>
+                <span className="text-base">{CATEGORIES.find((c) => c.value === form.category)?.icon}</span>
                 <span className="text-xs font-medium" style={{ color: "var(--text-secondary)" }}>
                   {form.type === "lost" ? "Lost" : "Found"} · {form.category.charAt(0).toUpperCase() + form.category.slice(1)}
                 </span>
                 <button type="button" onClick={() => setStep(0)}
-                  className="ml-auto text-xs font-medium transition-colors"
-                  style={{ color: "var(--teal-600)" }}>
+                  className="ml-auto text-xs font-medium" style={{ color: "var(--teal-600)" }}>
                   Change
                 </button>
               </div>
-
               <div>
                 <label className="label">Title</label>
                 <input type="text" name="title" value={form.title}
                   onChange={handleChange} required
                   placeholder="e.g. Black leather wallet with ID cards"
                   className="input"/>
-                <p className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>
-                  Keep it short and descriptive
-                </p>
+                <p className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>Keep it short and descriptive</p>
               </div>
-
               <div>
                 <label className="label">Description</label>
                 <textarea name="description" value={form.description}
                   onChange={handleChange} required rows={5}
-                  placeholder="Describe the item in detail — color, brand, size, distinguishing marks, what was inside..."
+                  placeholder="Describe the item in detail — color, brand, size, distinguishing marks..."
                   className="input resize-none"/>
                 <p className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>
-                  {form.description.length} characters — more detail helps people identify it
+                  {form.description.length} characters
                 </p>
               </div>
             </div>
           )}
 
-          {/* Step 2 — Location & Photos */}
+          {/* Step 2 */}
           {step === 2 && (
             <div className="space-y-4">
               <div className="card p-5 sm:p-6 space-y-5">
                 <div>
-                  <h2 className="font-display font-bold text-base mb-1"
-                    style={{ color: "var(--text-primary)" }}>
+                  <h2 className="font-display font-bold text-base mb-1" style={{ color: "var(--text-primary)" }}>
                     Where & Photos
                   </h2>
                   <p className="text-xs" style={{ color: "var(--text-muted)" }}>
                     Location and photos help people find and identify the item
                   </p>
                 </div>
-
                 <div>
                   <label className="label">Location</label>
                   <div className="relative">
@@ -308,26 +294,19 @@ export default function PostItemPage() {
                       className="input pl-9"/>
                   </div>
                   <p className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>
-                    Be as specific as possible — street, building, or landmark
+                    Be as specific as possible
                   </p>
                 </div>
-
                 <div>
                   <label className="label">
-                    Photos{" "}
-                    <span className="font-normal" style={{ color: "var(--text-muted)" }}>
-                      (optional, up to 5)
-                    </span>
+                    Photos <span className="font-normal" style={{ color: "var(--text-muted)" }}>(optional, up to 5)</span>
                   </label>
-
-                  {/* Image previews */}
                   {previews.length > 0 && (
                     <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 mb-3">
                       {previews.map((url, i) => (
                         <div key={i} className="relative group rounded-xl overflow-hidden"
                           style={{ aspectRatio: "1", border: "1px solid var(--border)" }}>
-                          <img src={url} alt={`Preview ${i + 1}`}
-                            className="w-full h-full object-cover"/>
+                          <img src={url} alt="" className="w-full h-full object-cover"/>
                           <button type="button" onClick={() => removeImage(i)}
                             className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all"
                             style={{ background: "rgba(0,0,0,0.5)" }}>
@@ -338,24 +317,20 @@ export default function PostItemPage() {
                         </div>
                       ))}
                       {previews.length < 5 && (
-                        <label className="rounded-xl flex flex-col items-center justify-center cursor-pointer transition-colors"
+                        <label className="rounded-xl flex flex-col items-center justify-center cursor-pointer"
                           style={{ aspectRatio: "1", border: "2px dashed var(--border)", background: "var(--surface)" }}>
                           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M12 5v14M5 12h14"/>
                           </svg>
-                          <input type="file" accept="image/*" multiple className="hidden"
-                            onChange={handleImageChange}/>
+                          <input type="file" accept="image/*" multiple className="hidden" onChange={handleImageChange}/>
                         </label>
                       )}
                     </div>
                   )}
-
-                  {/* Upload area */}
                   {previews.length === 0 && (
-                    <label className="flex flex-col items-center justify-center gap-3 py-10 rounded-2xl cursor-pointer transition-all hover:border-teal-400"
+                    <label className="flex flex-col items-center justify-center gap-3 py-10 rounded-2xl cursor-pointer"
                       style={{ border: "2px dashed var(--border)", background: "var(--surface)" }}>
-                      <div className="w-12 h-12 rounded-2xl flex items-center justify-center"
-                        style={{ background: "var(--teal-50)" }}>
+                      <div className="w-12 h-12 rounded-2xl flex items-center justify-center" style={{ background: "var(--teal-50)" }}>
                         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--teal-600)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                           <rect width="18" height="18" x="3" y="3" rx="2" ry="2"/>
                           <circle cx="9" cy="9" r="2"/>
@@ -363,27 +338,18 @@ export default function PostItemPage() {
                         </svg>
                       </div>
                       <div className="text-center">
-                        <p className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>
-                          Tap to upload photos
-                        </p>
-                        <p className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>
-                          PNG, JPG — up to 5 images
-                        </p>
+                        <p className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>Tap to upload photos</p>
+                        <p className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>PNG, JPG — up to 5 images</p>
                       </div>
-                      <input type="file" accept="image/*" multiple className="hidden"
-                        onChange={handleImageChange}/>
+                      <input type="file" accept="image/*" multiple className="hidden" onChange={handleImageChange}/>
                     </label>
                   )}
                 </div>
               </div>
 
-              {/* Summary card */}
-              <div className="card p-4"
-                style={{ border: "1px solid var(--teal-100)", background: "var(--teal-50)" }}>
-                <p className="text-xs font-bold uppercase tracking-wider mb-3"
-                  style={{ color: "var(--teal-600)" }}>
-                  Summary
-                </p>
+              {/* Summary */}
+              <div className="card p-4" style={{ border: "1px solid var(--teal-100)", background: "var(--teal-50)" }}>
+                <p className="text-xs font-bold uppercase tracking-wider mb-3" style={{ color: "var(--teal-600)" }}>Summary</p>
                 <div className="space-y-2">
                   {[
                     { label: "Type", value: form.type === "lost" ? "🔍 Lost" : "✅ Found" },
@@ -392,12 +358,8 @@ export default function PostItemPage() {
                     { label: "Photos", value: `${images.length} photo${images.length !== 1 ? "s" : ""}` },
                   ].map((s) => (
                     <div key={s.label} className="flex items-start gap-2 text-xs">
-                      <span className="font-medium flex-shrink-0 w-16" style={{ color: "var(--teal-700)" }}>
-                        {s.label}
-                      </span>
-                      <span className="capitalize" style={{ color: "var(--text-secondary)" }}>
-                        {s.value}
-                      </span>
+                      <span className="font-medium flex-shrink-0 w-16" style={{ color: "var(--teal-700)" }}>{s.label}</span>
+                      <span className="capitalize" style={{ color: "var(--text-secondary)" }}>{s.value}</span>
                     </div>
                   ))}
                 </div>
@@ -405,7 +367,7 @@ export default function PostItemPage() {
             </div>
           )}
 
-          {/* Navigation buttons */}
+          {/* Navigation */}
           <div className="flex gap-3 mt-6">
             {step > 0 && (
               <button type="button" onClick={() => setStep(step - 1)}
@@ -417,7 +379,6 @@ export default function PostItemPage() {
                 Back
               </button>
             )}
-
             {step < STEPS.length - 1 ? (
               <button type="button"
                 onClick={() => { if (canGoNext()) setStep(step + 1); }}
@@ -430,10 +391,10 @@ export default function PostItemPage() {
                 </svg>
               </button>
             ) : (
-              <button type="submit" disabled={loading}
+              <button type="submit" disabled={submitting}
                 className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-medium text-sm text-white transition-all disabled:opacity-50"
                 style={{ background: "var(--teal-600)" }}>
-                {loading ? (
+                {submitting ? (
                   <>
                     <svg className="animate-spin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
