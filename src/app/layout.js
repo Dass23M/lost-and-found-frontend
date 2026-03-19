@@ -17,7 +17,7 @@ export default function RootLayout({ children }) {
       <body className={geist.className}>
         <AuthProvider>
           <Navbar />
-          <main className="min-h-screen" style={{ background: "var(--surface)" }}>
+          <main style={{ background: "var(--surface)", minHeight: "100vh" }}>
             {children}
           </main>
           <Footer />
