@@ -1,7 +1,11 @@
 import Cookies from "js-cookie";
 
 export const setToken = (token) => {
-  Cookies.set("token", token, { expires: 7 });
+  Cookies.set("token", token, {
+    expires: 7,
+    path: "/",
+    sameSite: "lax",
+  });
 };
 
 export const getToken = () => {
@@ -9,7 +13,7 @@ export const getToken = () => {
 };
 
 export const removeToken = () => {
-  Cookies.remove("token");
+  Cookies.remove("token", { path: "/" });
 };
 
 export const isAuthenticated = () => {
