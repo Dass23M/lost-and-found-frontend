@@ -1,36 +1,172 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Lost & Found — Frontend
+
+A modern, mobile-responsive web application built with Next.js for the Lost & Found community platform.
+
+## Live Website
+```
+https://lost-and-found-frontend-phi.vercel.app
+```
+
+## Tech Stack
+
+- **Framework** — Next.js 16 (App Router)
+- **Language** — JavaScript
+- **Styling** — Tailwind CSS v3
+- **HTTP Client** — Axios
+- **Auth** — JWT stored in cookies (js-cookie)
+- **Fonts** — Syne + DM Sans (Google Fonts)
+- **Hosting** — Vercel
+
+## Features
+
+- User registration and login with JWT authentication
+- Real-time form validation with password strength meter
+- Post lost and found items with image uploads
+- Browse and search items by category, type, and location
+- Submit and manage claims on items
+- Approve or reject claims as item owner
+- Email notifications on claim activity
+- Admin dashboard for managing all items and users
+- Notification bell with unread count
+- Share item via clipboard copy
+- Related items section on item detail page
+- Fully mobile responsive on all screen sizes
+- Animated home page with scroll-triggered sections
+- 3-step post item wizard
+- Skeleton loading states throughout
+
+## Project Structure
+```
+lost-and-found-frontend/
+├── src/
+│   ├── app/
+│   │   ├── layout.js
+│   │   ├── page.js
+│   │   ├── globals.css
+│   │   ├── auth/
+│   │   │   ├── login/page.js
+│   │   │   └── register/page.js
+│   │   ├── items/
+│   │   │   ├── page.js
+│   │   │   └── [id]/page.js
+│   │   ├── post/page.js
+│   │   ├── my-account/page.js
+│   │   └── admin/page.js
+│   ├── components/
+│   │   ├── Navbar.js
+│   │   ├── Footer.js
+│   │   ├── ItemCard.js
+│   │   ├── ClaimModal.js
+│   │   └── NotificationBell.js
+│   ├── context/
+│   │   └── AuthContext.js
+│   ├── lib/
+│   │   ├── api.js
+│   │   └── auth.js
+│   └── middleware.js
+├── .env.local
+├── tailwind.config.js
+└── package.json
+```
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
+- Node.js v18+
+- Lost & Found Backend running
+
+### Installation
+
+1. Clone the repository
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/YOUR_USERNAME/lost-and-found-frontend.git
+cd lost-and-found-frontend
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Install dependencies
+```bash
+npm install
+```
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+3. Create `.env.local` file in the root directory
+```env
+NEXT_PUBLIC_API_URL=http://localhost:5000/api
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+4. Run in development
+```bash
+npm run dev
+```
 
-## Learn More
+5. Build for production
+```bash
+npm run build
+npm start
+```
 
-To learn more about Next.js, take a look at the following resources:
+The app runs on `http://localhost:3000`
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Pages
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| Route | Description | Access |
+|-------|-------------|--------|
+| `/` | Home page with hero and recent items | Public |
+| `/items` | Browse all items with filters | Public |
+| `/items/:id` | Item detail with claims | Public |
+| `/auth/login` | Login page | Guest only |
+| `/auth/register` | Register page | Guest only |
+| `/post` | Post a new item | Private |
+| `/my-account` | User dashboard | Private |
+| `/admin` | Admin dashboard | Admin only |
 
-## Deploy on Vercel
+## Environment Variables
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+| Variable | Description |
+|----------|-------------|
+| `NEXT_PUBLIC_API_URL` | Backend API base URL including /api |
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Color Palette
+
+| Variable | Value | Usage |
+|----------|-------|-------|
+| `--teal-600` | `#0d9488` | Primary color |
+| `--teal-700` | `#0f766e` | Primary hover |
+| `--teal-900` | `#134e4a` | Dark backgrounds |
+| `--amber-500` | `#f59e0b` | Accent color |
+| `--surface` | `#f8faf9` | Page background |
+| `--card` | `#ffffff` | Card background |
+
+## Key Components
+
+**Navbar** — Sticky navbar with mobile hamburger menu, active route highlighting, notification bell, user profile strip, and admin badge.
+
+**ItemCard** — Card component with fluid image height, type badge overlay, category pill, 2-line description clamp, and hover animation.
+
+**ClaimModal** — Mobile bottom sheet on small screens, tips section, character counter, minimum length validation.
+
+**NotificationBell** — Desktop dropdown and mobile bottom sheet, time ago display, unread dot indicator.
+
+**NotificationBell** — Real-time unread count badge, mark all as read, time-ago formatting.
+
+## Deployment
+
+This app is deployed on Vercel.
+
+1. Push code to GitHub
+2. Import repository on Vercel
+3. Add environment variable `NEXT_PUBLIC_API_URL`
+4. Deploy
+
+## Related
+
+- [Backend Repository](https://github.com/YOUR_USERNAME/lost-and-found-backend)
+- [Live API](https://lost-and-found-backend-production-0ce7.up.railway.app)
+
+## Author
+
+Developed by [Dasun Methmal]
+
+## License
+
+MIT
