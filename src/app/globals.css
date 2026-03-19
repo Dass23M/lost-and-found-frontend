@@ -1,0 +1,109 @@
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --teal-50: #f0fdfa;
+  --teal-100: #ccfbf1;
+  --teal-400: #2dd4bf;
+  --teal-500: #14b8a6;
+  --teal-600: #0d9488;
+  --teal-700: #0f766e;
+  --teal-900: #134e4a;
+  --amber-400: #fbbf24;
+  --amber-500: #f59e0b;
+  --amber-600: #d97706;
+  --surface: #f8faf9;
+  --card: #ffffff;
+  --border: #e2e8e7;
+  --text-primary: #0f2421;
+  --text-secondary: #4a6361;
+  --text-muted: #8aa5a3;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--surface);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Syne', sans-serif;
+}
+
+@layer components {
+  .font-display { font-family: 'Syne', sans-serif; }
+
+  .btn-primary {
+    @apply inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium text-sm transition-all duration-200;
+    background: var(--teal-600);
+    color: white;
+    text-decoration: none;
+  }
+  .btn-primary:hover {
+    background: var(--teal-700);
+    transform: translateY(-1px);
+  }
+
+  .btn-outline {
+    @apply inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium text-sm transition-all duration-200;
+    border: 1.5px solid var(--border);
+    color: var(--text-secondary);
+    background: white;
+    text-decoration: none;
+  }
+  .btn-outline:hover {
+    border-color: var(--teal-500);
+    color: var(--teal-600);
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    @apply rounded-2xl;
+  }
+
+  .badge-lost {
+    @apply inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full;
+    background: #fef2f2;
+    color: #dc2626;
+  }
+  .badge-found {
+    @apply inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full;
+    background: #eff6ff;
+    color: #2563eb;
+  }
+  .badge-active {
+    @apply inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full;
+    background: #fefce8;
+    color: #ca8a04;
+  }
+  .badge-resolved {
+    @apply inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full;
+    background: #f0fdf4;
+    color: #16a34a;
+  }
+
+  .input {
+    @apply w-full px-4 py-2.5 text-sm rounded-xl transition-all duration-200 outline-none;
+    border: 1.5px solid var(--border);
+    background: white;
+    color: var(--text-primary);
+    font-family: 'DM Sans', sans-serif;
+  }
+  .input:focus {
+    border-color: var(--teal-500);
+    box-shadow: 0 0 0 3px rgba(20,184,166,0.1);
+  }
+  .input::placeholder { color: var(--text-muted); }
+
+  .label {
+    @apply block text-sm font-medium mb-1.5;
+    color: var(--text-secondary);
+  }
+}
