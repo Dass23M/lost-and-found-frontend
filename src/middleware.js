@@ -4,16 +4,23 @@ export function middleware(request) {
   const token = request.cookies.get("token")?.value;
   const { pathname } = request.nextUrl;
 
-  const protectedRoutes = ["/post", "/my-account"];
+  const protectedRoutes = ["/post", "/my-account", "/admin"];
   const authRoutes = ["/auth/login", "/auth/register"];
 
-  if (protectedRoutes.some((route) => pathname.startsWith(route)) && !token) {
+  const isProtected = protectedRoutes.some((route) =>
+    pathname.startsWith(route)
+  );
+  const isAuthRoute = authRoutes.some((route) =>
+    pathname.startsWith(route)
+  );
+
+  if (isProtected && !token) {
     const loginUrl = new URL("/auth/login", request.url);
     loginUrl.searchParams.set("redirect", pathname);
     return NextResponse.redirect(loginUrl);
   }
 
-  if (authRoutes.some((route) => pathname.startsWith(route)) && token) {
+  if (isAuthRoute && token) {
     return NextResponse.redirect(new URL("/", request.url));
   }
 
@@ -21,5 +28,5 @@ export function middleware(request) {
 }
 
 export const config = {
-  matcher: ["/post", "/post/:path*", "/my-account", "/my-account/:path*", "/auth/login", "/auth/register"],
+  matcher: ["/post", "/post/:path*", "/my-account", "/my-account/:path*", "/admin", "/admin/:path*", "/auth/login", "/auth/register"],
 };
