@@ -37,21 +37,23 @@ export default function LoginPage() {
 
   const isValid = !validate.email && !validate.password && form.email && form.password;
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setTouched({ email: true, password: true });
-    if (!isValid) return;
-    setError("");
-    setLoading(true);
-    try {
-      await login(form.email, form.password);
-      router.push("/");
-    } catch (err) {
-      setError(err.response?.data?.message || "Invalid email or password");
-    } finally {
-      setLoading(false);
-    }
-  };
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setTouched({ email: true, password: true });
+  if (!isValid) return;
+  setError("");
+  setLoading(true);
+  try {
+    await login(form.email, form.password);
+    const params = new URLSearchParams(window.location.search);
+    const redirect = params.get("redirect") || "/";
+    router.push(redirect);
+  } catch (err) {
+    setError(err.response?.data?.message || "Invalid email or password");
+  } finally {
+    setLoading(false);
+  }
+};
 
   const fieldError = (name) => touched[name] && validate[name];
 
